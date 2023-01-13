@@ -1,4 +1,5 @@
 import sys
+import time
 import keyboard
 
 from pysrt.gui.window import Window
@@ -32,10 +33,12 @@ def main(title:str):
     # Finally, write the main loop to update the overlay each frame
     # until the user presses the 'q' key
     while True:
+        start = time.time()
         overlay.update()
         if keyboard.is_pressed('q'):
             overlay.quit()
             break
+        time.sleep(max(0, 1/10 - (time.time() - start)))
 
 
 

@@ -1,34 +1,3 @@
-"""
-This module is based in whole or in part on the ReadWriteMemory package by Victor Santiago.
-
-The original package can be found at https://github.com/vsantiago113/ReadWriteMemory
-
-The original package is licensed under the MIT License, which is reproduced below
-in accordance with the terms of the MIT License.
-
-    MIT License
-
-    Copyright (c) 2020 Victor Santiago
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-"""
-
 from typing import Any,  List
 import os.path
 import ctypes
@@ -291,6 +260,7 @@ class Process(object):
                      'Name': self.name, 'ErrorCode': self.error_code}
             ReadWriteMemoryError(error)
 
+
 class ReadWriteMemory:
     """
     The ReadWriteMemory Class is used to read and write to the memory of a running process.
@@ -377,3 +347,5 @@ class ReadWriteMemory:
                     return list(set(process_ids))
                 else:
                     count *= 2
+
+    
