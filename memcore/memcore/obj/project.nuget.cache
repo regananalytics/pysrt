@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "qkSqaWMPZI143gNiwMHtJxumMvOhZcrYR1KARpQwRpyTbrUHxKEhlr736J56C4eH9Bk8KukRxCc+hQh8N0GP2g==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\verti\\Documents\\GitHub\\pysrt\\memcore\\memcore\\MemCore.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\verti\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\verti\\.nuget\\packages\\system.text.json\\5.0.2\\system.text.json.5.0.2.nupkg.sha512",
+    "C:\\Users\\verti\\.nuget\\packages\\yamldotnet\\12.3.1\\yamldotnet.12.3.1.nupkg.sha512"
+  ],
+  "logs": []
+}
