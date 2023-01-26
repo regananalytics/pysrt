@@ -4,28 +4,20 @@ using ProcessMemory;
 using System.Diagnostics;
 using System.Reflection;
 using YamlDotNet.RepresentationModel;
+using System.Buffers;
 
 string gameName = "re2";
-string gameModel = @"C:/Users/verti/Documents/GitHub/pysrt/models/re2.yaml";
-string yaml;
+string gameConf = @"C:/Users/verti/Documents/GitHub/pysrt/memconf/" + gameName + ".yaml";
+
 
 // Load the process
 var process = Process.GetProcessesByName(gameName)?.FirstOrDefault();
 
-// Parse the model
-using (var reader = new StreamReader(gameModel))
-{
-    yaml = reader.ReadToEnd();
-}
-var pointers = MemPointerParser.Parse(yaml);
+// Parse the config
+var memConf = new MemConfig();
+memConf.Parse(gameConf);
+memConf.Build("RE2_WW_20220613_1");
 
-foreach (var item in pointers)
-{
-    var name = item.Key;
-    var pointer = item.Value;
-    pointer.AttachProcess(process);
-    Console.WriteLine(name + " " + pointer.Deref()+ "\n");
-}
 
 
 Console.WriteLine("Done!");
