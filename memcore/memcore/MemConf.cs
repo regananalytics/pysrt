@@ -232,7 +232,7 @@ namespace MemCore
                     var fieldObj = new Field(
                         fieldName, 
                         Convert.ToInt32((string)fieldVal["Offset"], 16),
-                        Type.GetType((string)fieldVal["Type"]),
+                        Type.GetType(TypeDictionary[(string)fieldVal["Type"]]),
                         fieldVal.ContainsKey("Default") ? fieldVal["Default"] : null
                     );
                     fieldsDict.Add(fieldName, fieldObj);
@@ -266,7 +266,7 @@ namespace MemCore
                 baseOffset, 
                 state.Levels, 
                 state.Offset, 
-                Type.GetType(state.Type), 
+                Type.GetType(TypeDictionary[state.Type]), 
                 state.Default
             );
             return memPointer;
@@ -303,7 +303,15 @@ namespace MemCore
 
         private static Dictionary<object, object> ToObjDict(object obj) => (Dictionary<object, object>)obj;
         private static List<object> ToObjList(object obj) => (List<object>)obj;
-    }
 
+        private static Dictionary<string, string> TypeDictionary = new Dictionary<string, string>
+        {
+            { "int", "System.Int32" },
+            { "long", "System.Int64" },
+            { "float", "System.Single" },
+            { "double", "System.Double" },
+            { "decimal", "System.Decimal" }
+        };
+    }
 
 }
