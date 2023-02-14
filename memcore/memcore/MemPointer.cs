@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -19,6 +20,10 @@ namespace MemCore
         public int ValueOffset { get; set; }
         public Type Type { get; set; } = typeof(long);
         public object? Default { get; set; }
+
+        private Process? Process { get; set; }
+        private ProcessMemoryHandler? MemoryHandler { get; set; }
+        private MultilevelPointer? Pointer { get; set; }
 
         public MemPointer (string name, int baseOffset, List<int> levelOffsets, int valueOffset, Type type, object? defaultValue=null)
         {
@@ -56,7 +61,7 @@ namespace MemCore
         {
             Pointer?.UpdatePointers();
         }
-
+        
         public object? Deref()
         {
             Update();

@@ -295,8 +295,8 @@
     },
     "ProcessMemory64/3.0.0.1": {
       "type": "project",
-      "path": "../../../ProcessMemory/ProcessMemory/ProcessMemory.csproj",
-      "msbuildProject": "../../../ProcessMemory/ProcessMemory/ProcessMemory.csproj"
+      "path": "../../../../repos/SRT/ProcessMemory/ProcessMemory/ProcessMemory.csproj",
+      "msbuildProject": "../../../../repos/SRT/ProcessMemory/ProcessMemory/ProcessMemory.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -309,7 +309,7 @@
   },
   "packageFolders": {
     "C:\\Users\\verti\\.nuget\\packages\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
@@ -321,10 +321,11 @@
       "outputPath": "C:\\Users\\verti\\Documents\\GitHub\\pysrt\\memcore\\memcore\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
         "C:\\Users\\verti\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -338,8 +339,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "C:\\Users\\verti\\Documents\\GitHub\\ProcessMemory\\ProcessMemory\\ProcessMemory.csproj": {
-              "projectPath": "C:\\Users\\verti\\Documents\\GitHub\\ProcessMemory\\ProcessMemory\\ProcessMemory.csproj"
+            "C:\\Users\\verti\\Documents\\repos\\SRT\\ProcessMemory\\ProcessMemory\\ProcessMemory.csproj": {
+              "projectPath": "C:\\Users\\verti\\Documents\\repos\\SRT\\ProcessMemory\\ProcessMemory\\ProcessMemory.csproj"
             }
           }
         }

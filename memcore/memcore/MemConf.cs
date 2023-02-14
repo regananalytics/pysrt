@@ -87,7 +87,10 @@ namespace MemCore
             {
                 if (Config == null)
                     throw new Exception("Config not parsed yet");
-                return (Dictionary<string, GameVersion>)Config["GameVersions"];
+                if (Config.ContainsKey("GameVersions"))
+                    return (Dictionary<string, GameVersion>)Config["GameVersions"];
+                else
+                    return new Dictionary<string, GameVersion>();
             }
         }
 
@@ -97,7 +100,10 @@ namespace MemCore
             {
                 if (Config == null)
                     throw new Exception("Config not parsed yet");
-                return (Dictionary<string, State>)Config["States"];
+                if (Config.ContainsKey("States"))
+                    return (Dictionary<string, State>)Config["States"];
+                else
+                    return new Dictionary<string, State>();
             }
         }
 
@@ -107,7 +113,10 @@ namespace MemCore
             {
                 if (Config == null)
                     throw new Exception("Config not parsed yet");
-                return (Dictionary<string, MemStruct>)Config["Structs"];
+                if (Config.ContainsKey("Structs"))
+                    return (Dictionary<string, MemStruct>)Config["Structs"];
+                else
+                    return new Dictionary<string, MemStruct>();
             }
         }
 
@@ -178,6 +187,8 @@ namespace MemCore
                     pointers.Add(state.Key, _BuildStatePointer(state.Value, thisVersion));
                 }
             }
+
+            Pointers = pointers;
         }
 
 
@@ -238,6 +249,7 @@ namespace MemCore
             {
                 var name = (string)item.Key;
                 var val = (Dictionary<object, object>)item.Value;
+                // TODO: Allow null levels
                 var levels = ToObjList(val["Levels"]).Select(b => Convert.ToInt32((string)b, 16)).ToArray();
                 var offset = Convert.ToInt32((string)val["Offset"], 16);
                 var type = (string)val["Type"];

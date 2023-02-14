@@ -13,7 +13,7 @@ GAME_VERSIONS:
     Hash: [ 0xBC, 0xD8, 0xCC, 0x6C, 0x0A, 0x7A, 0x8A, 0x1C, 0xF2, 0x68, 0xAA, 0x34, 0x34, 0xF8, 0x07, 0xF3, 0x85, 0x73, 0x33, 0xB0, 0x61, 0x7B, 0xE2, 0x4F, 0xA2, 0x80, 0x41, 0x2D, 0x84, 0x53, 0xDA, 0x43 ]
     Pointers:
       IGT_Pointer: 0x09168B80
-      Rank_Pointer: 0x0913F1A0
+      DA_Pointer: 0x0913F1A0
       Player_Pointer: 0x091610D0
       Enemy_Pointer: 0x0913DE10
 
@@ -22,7 +22,7 @@ GAME_VERSIONS:
     Hash: [ 0x5B, 0x61, 0x2B, 0x6C, 0xFE, 0xFF, 0x40, 0xDC, 0x9E, 0x04, 0x32, 0xFB, 0x1D, 0xD9, 0x0F, 0x00, 0x74, 0x1C, 0xEF, 0x10, 0x8B, 0x66, 0x36, 0x95, 0x82, 0xC9, 0x89, 0xF8, 0xCA, 0x87, 0xF5, 0x8B ]
     Pointers:
       IGT_Pointer: 0x091689E0
-      Rank_Pointer: 0x0913F000
+      DA_Pointer: 0x0913F000
       Player_Pointer: 0x09160F30
       Enemy_Pointer: 0x0913DC70
 
@@ -31,7 +31,7 @@ GAME_VERSIONS:
     Hash: [ 0x7C, 0xC3, 0xAB, 0x4E, 0x1E, 0x32, 0x8B, 0x94, 0x3F, 0x89, 0xF5, 0xB9, 0x46, 0xAF, 0xB9, 0x41, 0xD5, 0x37, 0x07, 0xAB, 0x8E, 0xE3, 0x8C, 0x54, 0xDD, 0x50, 0x03, 0x39, 0xB2, 0x6F, 0x97, 0x0B ]
     Pointers:
       IGT_Pointer: 0x0709D250
-      Rank_Pointer: 0x070A6AB0
+      DA_Pointer: 0x070A6AB0
       Player_Pointer: 0x070A0958
       Enemy_Pointer: 0x07095248
 
@@ -40,7 +40,7 @@ GAME_VERSIONS:
     Hash: [ 0x12, 0x8C, 0xE3, 0xA6, 0xA9, 0x84, 0x98, 0xCF, 0x1F, 0x69, 0x3E, 0xCE, 0x2E, 0x6D, 0xDC, 0xDB, 0xDD, 0x84, 0x6C, 0xFD, 0xD7, 0x44, 0x84, 0x27, 0x50, 0xF4, 0x3D, 0xFE, 0xD0, 0xD0, 0x0D, 0xF1 ]
     Pointers:
       IGT_Pointer: 0x0709D240
-      Rank_Pointer: 0x070A6AA0
+      DA_Pointer: 0x070A6AA0
       Player_Pointer: 0x070A0948
       Enemy_Pointer: 0x07095238
 
@@ -49,7 +49,7 @@ GAME_VERSIONS:
     Hash: [ 0xDF, 0xE8, 0x02, 0x2F, 0x6C, 0x1F, 0x07, 0x4D, 0x5C, 0x23, 0x03, 0x89, 0x4F, 0x6E, 0x20, 0x3E, 0xB2, 0x9D, 0xA4, 0x19, 0x9A, 0xE3, 0x85, 0xD0, 0x53, 0xF1, 0x6C, 0xDC, 0x2A, 0x89, 0xE4, 0xB5 ]
     Pointers:
       IGT_Pointer: 0x0709D240
-      Rank_Pointer: 0x070A6AA0
+      DA_Pointer: 0x070A6AA0
       Player_Pointer: 0x070A0948
       Enemy_Pointer: 0x07095238
   
@@ -58,7 +58,7 @@ GAME_VERSIONS:
     Hash: [ 0x25, 0xED, 0x0A, 0xE8, 0xEB, 0xBE, 0x1E, 0x4D, 0xA7, 0x04, 0x56, 0x75, 0xF4, 0x14, 0x6A, 0xBD, 0x0A, 0x43, 0x9B, 0xA7, 0xAC, 0x57, 0x2C, 0xFB, 0xEA, 0xAC, 0x99, 0xCB, 0xC6, 0xCD, 0xB3, 0x78 ]
     Pointers:
       IGT_Pointer: 0x07097EF8
-      Rank_Pointer: 0x070A7C88
+      DA_Pointer: 0x070A7C88
       Player_Pointer: 0x070A17E0
       Enemy_Pointer: 0x070960E0
 
@@ -74,29 +74,30 @@ STATES:
 
   DA_Pointer:
     Levels:
+      - 0x0
     Offset: 0x58
     Type: DA_Struct
 
-  Player_Character_Pointer:
-    Levels:
-      - 0x50
-      - 0x88
-    Offset: 0x54
-    Type: Character_Enum
+  # Player_Character_Pointer:
+  #   Levels:
+  #     - 0x50
+  #     - 0x88
+  #   Offset: 0x54
+  #   Type: Character_Enum
 
-  Player_HP_Pointer:
-    Levels:
-      - 0x50
-      - 0x20
-    Offset: 0x54
-    Type: Player_HP_Struct
+  # Player_HP_Pointer:
+  #   Levels:
+  #     - 0x50
+  #     - 0x20
+  #   Offset: 0x54
+  #   Type: Player_HP_Struct
 
-  Player_Poison_Pointer:
-    Levels:
-      - 0x50
-      - 0x88
-    Offset: 0x258
-    Type: byte
+  # Player_Poison_Pointer:
+  #   Levels:
+  #     - 0x50
+  #     - 0x88
+  #   Offset: 0x258
+  #   Type: byte
 
   # Enemy_Pointer:
 
@@ -122,66 +123,66 @@ STRUCTS:
     Pack: 1
     Size: 0x20
     Fields:
-      IGTRunningTimer:
+      IGT_Running_Timer:
         Offset: 0x0
         Type: long
         Default: 0
-      IGTCutsceneTimer:
+      IGT_Cutscene_Timer:
         Offset: 0x8
         Type: long
         Default: 0
-      IGTMenuTimer:
+      IGT_Menu_Timer:
         Offset: 0x10
         Type: long
         Default: 0
-      IGTPauseTimer:
+      IGT_Pause_Timer:
         Offset: 0x18
         Type: long
         Default: 0
 
-  Inventory_Struct:
-    Pack: 1
-    Size: 0x24
-    Fields:
-      Item_ID:
-        Offset: 0x10
-        Type: int
-        Default: 0
-      Weapon_ID:
-        Offset: 0x14
-        Type: int
-        Default: 0
-      Attachments:
-        Offset: 0x18
-        Type: int
-        Default: 0
-      Quantity:
-        Offset: 0x20
-        Type: int
-        Default: 0
+  # Inventory_Struct:
+  #   Pack: 1
+  #   Size: 0x24
+  #   Fields:
+  #     Item_ID:
+  #       Offset: 0x10
+  #       Type: int
+  #       Default: 0
+  #     Weapon_ID:
+  #       Offset: 0x14
+  #       Type: int
+  #       Default: 0
+  #     Attachments:
+  #       Offset: 0x18
+  #       Type: int
+  #       Default: 0
+  #     Quantity:
+  #       Offset: 0x20
+  #       Type: int
+  #       Default: 0
 
-  Player_HP_Struct:
-    Pack: 1
-    Size: 0x8
-    Fields:
-      Player_Max_HP:
-        Offset: 0x0
-        Type: int
-        Default: 0
-      Player_HP:
-        Offset: 0x4
-        Type: int
-        Default: 0
+  # Player_HP_Struct:
+  #   Pack: 1
+  #   Size: 0x8
+  #   Fields:
+  #     Player_Max_HP:
+  #       Offset: 0x0
+  #       Type: int
+  #       Default: 0
+  #     Player_HP:
+  #       Offset: 0x4
+  #       Type: int
+  #       Default: 0
 
 
-# Enum Definitions
-ENUMS:
+# # Enum Definitions
+# ENUMS:
 
-  Character_Enum:
-    Type: int
-    Values:
-      Leon: 0
-      Claire: 1
-      Ada: 2
-      Sherry: 3
+#   Character_Enum:
+#     Type: int
+#     Values:
+#       Leon: 0
+#       Claire: 1
+#       Ada: 2
+#       Sherry: 3
       
