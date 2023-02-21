@@ -1,47 +1,28 @@
 ﻿using ProcessMemory;
-using ProcessMemory.Types;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using YamlDotNet.Core;
-using YamlDotNet.Core.Events;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace MemCore
 {
     public class MemPointer
     {
         public string Name { get; set; }
-        public int BaseOffset { get; set; }
-        public int[] LevelOffsets { get; set; } = new int[0];
-        public int ValueOffset { get; set; }
-        public Type Type { get; set; } = typeof(long);
+        public Type? Type { get; set; }
+        public int BaseOffset { get; set; } = 0x0;
+        public int[]? LevelOffsets { get; set; }
+        public int ValueOffset { get; set; } = 0x0;
         public object? Default { get; set; }
 
         private Process? Process { get; set; }
         private ProcessMemoryHandler? MemoryHandler { get; set; }
         private MultilevelPointer? Pointer { get; set; }
 
-        public MemPointer (string name, int baseOffset, List<int> levelOffsets, int valueOffset, Type type, object? defaultValue=null)
+        public MemPointer (string name, Type? type = null, int baseOffset = 0x0, int[]? levelOffsets = null, int valueOffset = 0x0, object? defaultValue=null)
         {
             Name = name;
-            BaseOffset = baseOffset;
-            LevelOffsets = levelOffsets.ToArray();
-            ValueOffset = valueOffset;
             Type = type;
-            Default = defaultValue;
-        }
-
-        public MemPointer (string name, int baseOffset, int[] levelOffsets, int valueOffset, Type type, object? defaultValue=null)
-        {
-            Name = name;
             BaseOffset = baseOffset;
             LevelOffsets = levelOffsets;
             ValueOffset = valueOffset;
-            Type = type;
             Default = defaultValue;
         }
 
@@ -52,9 +33,15 @@ namespace MemCore
 
             var baseAddress = NativeWrappers.GetProcessBaseAddress(Process.Id, PInvoke.ListModules.LIST_MODULES_64BIT);
 
-            var levelOffsets = LevelOffsets.Select(x => (long)x).ToArray();
-
-            Pointer = new MultilevelPointer(MemoryHandler, IntPtr.Add(baseAddress, BaseOffset), levelOffsets);
+            if (LevelOffsets != null)
+            {
+                var levelOffsets = LevelOffsets.Select(x => (long)x).ToArray();
+                Pointer = new MultilevelPointer(MemoryHandler, IntPtr.Add(baseAddress, BaseOffset), levelOffsets);
+            }
+            else
+            {
+                Pointer = new MultilevelPointer(MemoryHandler, IntPtr.Add(baseAddress, BaseOffset));
+            }
         }
 
         public void Update()
@@ -62,23 +49,34 @@ namespace MemCore
             Pointer?.UpdatePointers();
         }
         
-        public object? Deref()
+        public object? Deref(int? valueOffset)
         {
-            Update();
+            int offset;
+            if (valueOffset != null)
+                offset = (int) valueOffset;
+            else
+                offset = ValueOffset;
+
+            if (Type == null)
+                throw new ArgumentException("Type is null");
+
             if (Pointer == null || Pointer.IsNullPointer)
                 return Default;
-            if (Type == typeof(int))
-                return Pointer.DerefInt(ValueOffset);
-            if (Type == typeof(long))
-                return Pointer.DerefLong(ValueOffset);
-            if (Type == typeof(float))
-                return Pointer.DerefFloat(ValueOffset);
-            if (Type == typeof(double))
-                return Pointer.DerefDouble(ValueOffset);
-            if (Type == typeof(string))
-                return Pointer.DerefUnicodeString(ValueOffset, 100);
+            if (Type == typeof(Byte))
+                return Pointer.DerefByte(offset);
+            else if (Type == typeof(int))
+                return Pointer.DerefInt(offset);
+            else if (Type == typeof(long))
+                return Pointer.DerefLong(offset);
+            else if (Type == typeof(float))
+                return Pointer.DerefFloat(offset);
+            else if (Type == typeof(double))
+                return Pointer.DerefDouble(offset);
+            else if (Type == typeof(string))
+                return Pointer.DerefUnicodeString(offset, 100);
             throw new ArgumentException($"Invalid type '{Type.Name}'");
         }
 
     }
+
 }

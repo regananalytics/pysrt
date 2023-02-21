@@ -1,137 +1,30 @@
-﻿using YamlDotNet.Serialization;
+﻿using System.Diagnostics;
+using YamlDotNet.Serialization;
 
 namespace MemCore
 {
-
-    public class GameVersion
+    public class MemConfigParser
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public byte[] Hash { get; set; }
-        public Dictionary<string, int> Addresses { get; set; }
-
-        public GameVersion (string name, string description, byte[] hash, Dictionary<string, int> addresses)
-        {
-            Name = name;
-            Description = description;
-            Hash = hash;
-            Addresses = addresses;
-        }
-    }
-
-
-    public class MemStruct
-    {
-        public string Name { get; set; }
-        public int Pack { get; set; }
-        public int Size { get; set; }
-        public Dictionary<string, Field> Fields { get; set; }
-
-        public MemStruct (string name, int pack, int size, Dictionary<string, Field> fields)
-        {
-            Name = name;
-            Pack = pack;
-            Size = size;
-            Fields = fields;
-        }
-    }
-
-    public class Field
-    {
-        public string Name { get; set; }
-        public int Offset { get; set; }
-        public Type Type { get; set; }
-        public object? Default { get; set; }
-
-        public Field (string name, int offset, Type type, object? defaultValue=null)
-        {
-            Name = name;
-            Offset = offset;
-            Type = type;
-            Default = defaultValue;
-        }
-    }
-
-    public class State
-    {
-        public string Name { get; set; }
-        public int[] Levels { get; set; }
-        public int Offset { get; set; }
-        public string Type { get; set; }
-        public object? Default { get; set; }
-
-        public State (string name, int[] levels, int offset, string type, object? defaultValue=null)
-        {
-            Name = name;
-            Levels = levels;
-            Offset = offset;
-            Type = type;
-            Default = defaultValue;
-        }
-    }
-
-
-    public class MemConfig
-    {
-
-        public Dictionary<string, MemPointer>? Pointers { get; set; }
-
-        public string? ConfString { get; set; }
+        public Dictionary<string, MemPointer> Pointers { get; set; } = new Dictionary<string, MemPointer>();
+        public string? ConfigString { get; set; }
         public string? GameVersion { get; set; }
 
-        private Dictionary<string, object>? Config { get; set; }
+        private Dictionary<string, GameVersion> GameVersions { get; set; } = new Dictionary<string, GameVersion>();
+        private Dictionary<string, StateConfig> StateConfigs { get; set; } = new Dictionary<string, StateConfig>();
+        private Dictionary<string, StateStructConfig> StructConfigs { get; set; } = new Dictionary<string, StateStructConfig>();
 
-        public Dictionary<string, GameVersion> GameVersions
-        {
-            get
-            {
-                if (Config == null)
-                    throw new Exception("Config not parsed yet");
-                if (Config.ContainsKey("GameVersions"))
-                    return (Dictionary<string, GameVersion>)Config["GameVersions"];
-                else
-                    return new Dictionary<string, GameVersion>();
-            }
-        }
-
-        public Dictionary<string, State> States
-        {
-            get
-            {
-                if (Config == null)
-                    throw new Exception("Config not parsed yet");
-                if (Config.ContainsKey("States"))
-                    return (Dictionary<string, State>)Config["States"];
-                else
-                    return new Dictionary<string, State>();
-            }
-        }
-
-        public Dictionary<string, MemStruct> Structs
-        {
-            get
-            {
-                if (Config == null)
-                    throw new Exception("Config not parsed yet");
-                if (Config.ContainsKey("Structs"))
-                    return (Dictionary<string, MemStruct>)Config["Structs"];
-                else
-                    return new Dictionary<string, MemStruct>();
-            }
-        }
-
+        public Dictionary<string, State> States { get; set; } = new Dictionary<string, State>();
+        public Dictionary<string, StateStruct> Structs { get; set; } = new Dictionary<string, StateStruct>();
 
         public void Parse(string? yamlFile)
         {
             if (yamlFile != null)
-                ConfString = File.ReadAllText(yamlFile);
-            else if (ConfString == null)
+                ConfigString = File.ReadAllText(yamlFile);
+            else if (ConfigString == null)
                 throw new Exception("No config string or file provided");
 
-            var config = new Dictionary<string, object>();
-
             var deserializer = new DeserializerBuilder().Build();
-            var raw_config = (Dictionary<object, object>?) deserializer.Deserialize(new StringReader(ConfString));
+            var raw_config = (Dictionary<object, object>?) deserializer.Deserialize(new StringReader(ConfigString));
 
             if (raw_config == null)
                 return;
@@ -139,60 +32,21 @@ namespace MemCore
             // Iterate over the deserialized object and dispatch to the appropriate parsers
             foreach (var conf in raw_config)
             {
-                if (conf.Key.ToString().ToUpper() == "GAME_VERSIONS")
-                    config.Add("GameVersions", _ParseGameVersions(ToObjDict(conf.Value)));
-                else if (conf.Key.ToString().ToUpper() == "STATES")
-                    config.Add("States", _ParseStates(ToObjDict(conf.Value)));
-                else if (conf.Key.ToString().ToUpper() == "STRUCTS")
-                    config.Add("Structs", _ParseStructs(ToObjDict(conf.Value)));
-                else
-                    config.Add(conf.Key.ToString(), conf.Value);
+                var str = conf.Key.ToString();
+                if (str == null)
+                    continue;
+                str = str.ToUpper();
+                
+                if (str == "GAME_VERSIONS")
+                    GameVersions = ParseGameVersions(ToObjDict(conf.Value));
+                else if (str == "STATES")
+                    StateConfigs = ParseStateConfigs(ToObjDict(conf.Value));
+                else if (str == "STRUCTS")
+                    StructConfigs = ParseStructConfigs(ToObjDict(conf.Value));
             }
-
-            // Set the config
-            Config = config;
         }
 
-
-        public void Build(string? gameVersion)
-        {
-            // Handle nulls
-            if (Config == null)
-                throw new Exception("Config not parsed yet");
-            if (gameVersion != null)
-                GameVersion = gameVersion;
-            else if (GameVersion == null)
-                throw new Exception("No game version provided");
-
-            // Get the game version
-            var thisVersion = GameVersions[GameVersion];
-
-            // Process Config into MemPointer instances
-            var pointers = new Dictionary<string, MemPointer>();
-
-            // Iterate over States to build pointers
-            foreach (var state in States)
-            {
-                var type = state.Value.Type;
-
-                // Determine if the type is a data type or a struct
-                if (Structs.ContainsKey(type))
-                {
-                    var _pointers = _BuildStructPointers(Structs[type], state.Value, thisVersion);
-                    foreach (var p in _pointers)
-                        pointers.Add(p.Name, p);
-                }
-                else
-                {
-                    pointers.Add(state.Key, _BuildStatePointer(state.Value, thisVersion));
-                }
-            }
-
-            Pointers = pointers;
-        }
-
-
-        private static Dictionary<string, GameVersion> _ParseGameVersions(Dictionary<object, object> versions)
+        private static Dictionary<string, GameVersion> ParseGameVersions(Dictionary<object, object> versions)
         {
             var gameVersions = new Dictionary<string, GameVersion>();
             foreach (var item in versions)
@@ -214,98 +68,108 @@ namespace MemCore
             return gameVersions;
         } 
 
-        private static Dictionary<string, MemStruct> _ParseStructs(Dictionary<object, object> structs)
+        private static Dictionary<string, StateConfig> ParseStateConfigs(Dictionary<object, object> states)
         {
-            var memStructs = new Dictionary<string, MemStruct>();
-            foreach (var item in structs)
-            {
-                var structName = (string)item.Key;
-                var structVal = ToObjDict(item.Value);
-                var pack = Convert.ToInt32((string)structVal["Pack"]);
-                var size = Convert.ToInt32((string)structVal["Size"], 16);
-                var fields = ToObjDict(structVal["Fields"]);
-                var fieldsDict = new Dictionary<string, Field>();
-                foreach (var field in fields)
-                {
-                    var fieldName = (string)field.Key;
-                    var fieldVal = ToObjDict(field.Value);
-                    var fieldObj = new Field(
-                        fieldName, 
-                        Convert.ToInt32((string)fieldVal["Offset"], 16),
-                        Type.GetType(TypeDictionary[(string)fieldVal["Type"]]),
-                        fieldVal.ContainsKey("Default") ? fieldVal["Default"] : null
-                    );
-                    fieldsDict.Add(fieldName, fieldObj);
-                }
-                memStructs.Add(structName, new MemStruct(structName, pack, size, fieldsDict));
-            }
-            return memStructs;
-        }
-
-        private static Dictionary<string, State> _ParseStates(Dictionary<object, object> states)
-        {
-            var States = new Dictionary<string, State>();
+            var States = new Dictionary<string, StateConfig>();
             foreach (var item in states)
             {
                 var name = (string)item.Key;
                 var val = (Dictionary<object, object>)item.Value;
-                // TODO: Allow null levels
-                var levels = ToObjList(val["Levels"]).Select(b => Convert.ToInt32((string)b, 16)).ToArray();
-                var offset = Convert.ToInt32((string)val["Offset"], 16);
+                var baseOffset = (string)val["BaseOffset"];
                 var type = (string)val["Type"];
-                States.Add(name, new State(name, levels, offset, type, val.ContainsKey("Default") ? val["Default"] : null));
+                var levels_ = ToObjList(val["Levels"]);
+                var levels = (levels_ != null) ? levels_.Select(b => Convert.ToInt32((string)b, 16)).ToArray() : null;
+                var valueOffset = Convert.ToInt32((string)val["ValueOffset"], 16);
+                var default_ = val.ContainsKey("Default") ? val["Default"] : null;
+                States.Add(name, new StateConfig(name, type, 0x0, levels, valueOffset, default_));
             }
             return States;
         }
 
-        private static MemPointer _BuildStatePointer(State state, GameVersion gameVersion)
+        private static Dictionary<string, StateStructConfig> ParseStructConfigs(Dictionary<object, object> structs)
         {
-            var baseOffset = gameVersion.Addresses[state.Name];
-            var memPointer = new MemPointer(
-                state.Name, 
-                baseOffset, 
-                state.Levels, 
-                state.Offset, 
-                Type.GetType(TypeDictionary[state.Type]), 
-                state.Default
-            );
-            return memPointer;
+            var structConfigs = new Dictionary<string, StateStructConfig>();
+            foreach (var item in structs)
+            {
+                var name = (string)item.Key;
+                var val = ToObjDict(item.Value);
+
+                int? pack = null;
+                if (val.ContainsKey("Pack"))
+                    pack = (val["Pack"] != null) ? Convert.ToInt32((string)val["Pack"]) : null;
+
+                int? size = null;
+                if (val.ContainsKey("Size"))
+                    pack = (val["Size"] != null) ? Convert.ToInt32((string)val["Size"], 16) : null;
+                
+                int[]? levels = null;
+                if (val.ContainsKey("Levels"))
+                    levels = (ToObjList(val["Levels"]) != null) ? ToObjList(val["Levels"]).Select(b => Convert.ToInt32((string)b, 16)).ToArray() : null;
+
+                var structConfig = new StateStructConfig(name, 0x0, levels, 0x0, pack, size);
+
+                var fieldConfigs = ToObjDict(val["Fields"]);
+                foreach (var field in fieldConfigs)
+                {
+                    var fname = (string)field.Key;
+                    var fval = ToObjDict(field.Value);
+                    structConfig.AddFieldConfig(fname, 
+                        new FieldConfig(
+                            fname,
+                            TypeDictionary[(string)fval["Type"]],
+                            (fval["FieldOffset"] != null) ? Convert.ToInt32((string)fval["FieldOffset"], 16) : 0x0,
+                            (fval["Default"] != null) ? fval["Default"] : null
+                        )
+                    );
+                }
+                structConfigs.Add(name, structConfig);
+            }
+            return structConfigs;
         }
 
-        private static List<MemPointer> _BuildStructPointers(MemStruct memStruct, State state, GameVersion gameVersion)
+        public void Build(string? gameVersion, Process process)
         {
-            var pointers = new List<MemPointer>();
+            // Handle nulls
+            if (ConfigString == null)
+                throw new Exception("Config not parsed yet");
+            if (gameVersion != null)
+                GameVersion = gameVersion;
+            else if (GameVersion == null)
+                throw new Exception("No game version provided"); 
 
-            // State details for the whole Struct
-            var baseOffset = gameVersion.Addresses[state.Name];
-            var levels = state.Levels;
-            var valueOffset = state.Offset;
+            // Get the game version
+            var thisVersion = GameVersions[GameVersion];
 
-            // Struct details
-            // var structPack = memStruct.Pack;
-            // var structSize = memStruct.Size;
-
-            // Build pointer for each struct field
-            foreach (var field in memStruct.Fields)
-                pointers.Add(
-                    new MemPointer(
-                        field.Key, 
-                        baseOffset, 
-                        levels,
-                        valueOffset + field.Value.Offset, 
-                        field.Value.Type,
-                        field.Value.Default
-                    )
-                );
-
-            return pointers;
-        }
+            // Iterate over States to build pointers
+            foreach (var state in StateConfigs)
+            {
+                // Determine if the type is a data type or a struct
+                if (StructConfigs.ContainsKey(state.Value.TypeStr))
+                {
+                    // Update the BaseOffset from the GameVersion
+                    var structConfig = StructConfigs[state.Value.TypeStr];
+                    structConfig.BaseOffset = thisVersion.Addresses[state.Key];
+                    structConfig.Levels = state.Value.Levels;
+                    structConfig.ValueOffset = state.Value.ValueOffset;
+                    // Build the State from the StateConfig by attaching the process
+                    Structs.Add(state.Key, new StateStruct(structConfig, process));
+                }
+                else
+                {
+                    // Update the BaseOffset from the GameVersion
+                    state.Value.BaseOffset = thisVersion.Addresses[state.Key];
+                    // Build the State from the StateConfig by attaching the process
+                    States.Add(state.Key, new State(state.Value, process));
+                }
+            }
+        }        
 
         private static Dictionary<object, object> ToObjDict(object obj) => (Dictionary<object, object>)obj;
         private static List<object> ToObjList(object obj) => (List<object>)obj;
 
-        private static Dictionary<string, string> TypeDictionary = new Dictionary<string, string>
+        internal static Dictionary<string, string> TypeDictionary = new Dictionary<string, string>
         {
+            { "byte", "System.Byte" },
             { "int", "System.Int32" },
             { "long", "System.Int64" },
             { "float", "System.Single" },
@@ -313,5 +177,4 @@ namespace MemCore
             { "decimal", "System.Decimal" }
         };
     }
-
 }

@@ -15,7 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\ProcessMemory\ProcessMemory\ProcessMemory.csproj" />
+    <Reference Include="ProcessMemory64">
+      <HintPath>..\..\ref\ProcessMemory64.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

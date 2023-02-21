@@ -3,52 +3,54 @@ using NetMQ;
 using NetMQ.Sockets;
 using MemCore;
 using System.Diagnostics;
-using System.Reflection;
-using System.Text.Json.Serialization;
 using System.Text.Json;
 
 string gameName = "re2";
 string gameConf = @"C:/Users/verti/Documents/GitHub/pysrt/memconf/" + gameName + ".yaml";
 
+// Parse the config
+var memConfParser = new MemConfigParser();
+memConfParser.Parse(gameConf);
 
 // Load the process
-// var process = Process.GetProcessesByName(gameName)?.FirstOrDefault();
+var process = Process.GetProcessesByName(gameName)?.FirstOrDefault();
+if (process == null)
+    throw new System.Exception("Process not found");
 
-// Parse the config
-var memConf = new MemConfig();
-memConf.Parse(gameConf);
-memConf.Build("RE2_WW_20220613_1");
+// Build Config
+memConfParser.Build("RE2_WW_20211217_1", process);
 
-//if (memConf.Pointers != null)
-//{
-//    foreach (var mem_pnt in memConf.Pointers)
-//        mem_pnt.Value.AttachProcess(process);
-//}
 
+// Start the publisher
 using (var pubSocket = new PublisherSocket())
 {
     pubSocket.Options.SendHighWatermark = 1000;
     pubSocket.Bind("tcp://*:5556");
 
-    int value = 0;
     while (true)
     {
-        var dict = new Dictionary<string, string>();
+        var dict = new Dictionary<string, object?>();
 
-        foreach (var mem_pnt in memConf.Pointers)
+        // Get State Values
+        foreach (var state in memConfParser.States)
         {
-            var name = mem_pnt.Key;
-            //var pointer = mem_pnt.Value;
-            //string value = (string) pointer.Deref();
-            
-            dict[name] = (value++).ToString();
+            state.Value.Update();
+            dict.Add( state.Key, state.Value.Deref());
         }
 
+        // Get StateStruct Values
+        foreach (var stateStruct in memConfParser.Structs)
+        {
+            stateStruct.Value.Update();
+            dict.Add(stateStruct.Key, stateStruct.Value.Deref());
+        }
+
+        // Publish the values
         string json = JsonSerializer.Serialize(dict);
         pubSocket.SendFrame(json);
         Console.WriteLine(json);
 
-        Thread.Sleep(1000);
+        // Sleep
+        Thread.Sleep(2000);
     }
 }
-
