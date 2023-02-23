@@ -197,3 +197,15 @@ STRUCTS:
 #       Ada: 2
 #       Sherry: 3
       
+# DA Ranks:
+#   Rank, Score Range,  Damage Taken, Damage Dealt, Notes
+#   0,    0-999,        70%,          120%,         Assisted
+#   1,    1000-1999,    70%,          120%,         Assisted
+#   2,    2000-2999,    80%,          120%,         Assisted*
+#   3,    3000-3999,    90%,          120%,         Assisted
+#   4,    4000-4999,    100%,         110%,         Assisted, Normal
+#   5,    5000-5999,    120%,         100%,         Normal*
+#   6,    6000-6999,    140%,         90%,          Normal
+#   7,    7000-7999,    160%,         80%,          Normal
+#   8,    8000-8999,    200%,         70%,          Hardcore
+#   9,    9000-9999,    300%,         70%,          Hardcore*
