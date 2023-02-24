@@ -1,3 +1,5 @@
 keyboard
+plotly
 pygame
 pywin32
+rich

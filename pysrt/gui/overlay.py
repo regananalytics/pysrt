@@ -3,11 +3,9 @@ import win32con
 import win32gui
 import pygame
 
+from . import fuchsia
 from .window import Window
 
-
-# Default colorkey RGB value
-fuchsia = (255, 0, 128)
 
 
 class Overlay:
@@ -15,7 +13,7 @@ class Overlay:
     Overlay Class
 
         The Overlay class is used to draw on top of a window, given the window's handle.
-        The Overlay class uses the pygame library to draw on the screen, and uses the win32api
+        The Overlay class uses the pygame library to draw on the surfeen, and uses the win32api
         library to set the window's transparency and position.
 
         This class initializes a pygame instance upon creation, and quits the pygame instance
@@ -23,10 +21,10 @@ class Overlay:
 
         To use this class, create an instance of the Overlay class, and call the set_draw_func()
         method to set the function to be called when the overlay is updated. The function
-        should take one argument, the overlay object, and should draw on the overlay's screen.
+        should take one argument, the overlay object, and should draw on the overlay's surfeen.
 
         To update the overlay, call the update() method. This will call the draw function
-        and update the overlay's position on the screen.
+        and update the overlay's position on the surfeen.
         The update method should be called in a loop, and when the loop exits, the quit()
         method should be used to terminate the pygame instance.
     """
@@ -40,7 +38,7 @@ class Overlay:
         # To make this an overlay,
         #   Initialize the overlay with the same dimensions as the window it will be overlaying
         #   Turn off the overlay's frame so it isn't just a window.
-        self.scr = pygame.display.set_mode(self.win.xywh()[2:], pygame.NOFRAME)
+        self.surf = pygame.display.set_mode(self.win.xywh()[2:], pygame.NOFRAME)
         # Set the transparency color
         self.colorkey = fuchsia if colorkey is None else colorkey
         # And make the window transparent
@@ -96,20 +94,39 @@ class Overlay:
         pygame.quit()
 
 
-    ## Drawing Functions
+    ## Low-Level Drawing Functions
 
     def fill(self, color):
         """Fill the overlay with a color"""
-        self.scr.fill(color)
+        self.surf.fill(color)
 
     def draw_vline(self, x, h, color=(255, 255, 255)):
         """Draw a vertical line at some x coordinate
             Lines are drawn relative to the window's top left corner.
         """
-        pygame.draw.line(self.scr, color, (x, 0), (x, h))
+        pygame.draw.line(self.surf, color, (x, 0), (x, h))
 
     def draw_hline(self, y, w, color=(255, 255, 255)):
         """Draw a horizontal line at some y coordinate
             Lines are drawn relative to the window's top left corner.
         """
-        pygame.draw.line(self.scr, color, (0, y), (w, y))
+        pygame.draw.line(self.surf, color, (0, y), (w, y))
+
+    def draw_rect(self, rect, color=(255, 255, 255)):
+        """Draw a rectangle
+            Rectangles are drawn relative to the window's top left corner.
+        """
+        pygame.draw.rect(self.surf, rect, color)
+
+    def draw_text(self, text, pos, color=(255, 255, 255)):
+        """Draw text
+            Text is drawn relative to the window's top left corner.
+        """
+        self.surf.blit(self.font.render(text, True, color), pos)
+        
+    def draw_arc(self, rect, start, end, color=(255, 255, 255)):
+        """Draw an arc
+            Arcs are drawn relative to the window's top left corner.
+        """
+        pygame.draw.arc(self.surf, color, rect, start, end)
+

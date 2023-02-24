@@ -1,4 +1,23 @@
 import plotly.graph_objs as go
+from plotly.io._kaleido import to_image
+
+from time import time
+
+
+def text(msg, x, y, textposition='top right', size=20, color='black'):
+    _text = go.Scatter(
+        x=[x], y=[y],
+        mode='text',
+        text=[msg],
+        textposition=textposition,
+        textfont=dict(
+            size=size,
+            color=color
+        ),
+        showlegend=False,
+        hoverinfo='none'
+    )
+    return _text
 
 
 def main():
@@ -14,53 +33,13 @@ def main():
             'range' : [0, 1],  
             'visible': False
         },
-        plot_bgcolor = 'rgba(0, 0, 0, 0)'
+        plot_bgcolor = 'white'
     )
-
-    fig.add_trace(go.Scatter(
-        x = [0.38], y = [0.75],
-        mode='text',
-        text = ['IGT:'],
-        textposition='top right',
-        textfont = {
-            'size': 20
-        },
-        showlegend=False,
-        hoverinfo='none',
-    )) 
-
-    fig.add_trace(go.Scatter(
-        x = [0.6, 1], y = [0.75, 0.75],
-        mode='text',
-        text = ['00:38:42', '02:13'],
-        textposition='top left',
-        textfont = {
-            'size': 20
-        },
-        showlegend=False,
-        hoverinfo='none',
-    )) 
-
-    fig.add_trace(go.Scatter(
-        x = [0.8], y = [0.75],
-        mode='text',
-        text = ['▼00:12'],
-        textposition='top left',
-        textfont = {
-            'size': 20,
-            'color': 'green'
-        },
-        showlegend=False,
-        hoverinfo='none',
-    )) 
 
     fig.add_trace(
         go.Indicator(
             mode = 'gauge',
             value = 5250,
-            delta = {
-                'reference': 5000
-            },
             gauge = {
                 'axis': {
                     'visible': False,
@@ -76,55 +55,13 @@ def main():
                 {'range': [5000, 6000], 'color': 'orange'},
                 {'range': [6000, 7000], 'color': 'red'},
             ],
-            domain = {
-                'x': [0, 0.3], 'y': [0, 1]
-            }
+            domain = {'x': [0, 0.3], 'y': [0, 1]}
         )
     )
 
-
-    fig.add_trace(go.Scatter(
-        x = [0], y = [0.85],
-        mode='text',
-        text = ['DA'],
-        textposition='bottom right',
-        textfont = {
-            'size': 20
-        },
-        showlegend=False,
-        hoverinfo='none',
-    ))
-
-    fig.add_trace(go.Scatter(
-        x = [0.15], y = [0.52],
-        mode='text',
-        text = ['5250'],
-        textposition='bottom center',
-        textfont = {
-            'size': 15
-        },
-        showlegend=False,
-        hoverinfo='none',
-    ))
-
-    fig.add_trace(go.Scatter(
-        x = [0.15], y = [0.4],
-        mode='text',
-        text = ['5'],
-        textposition='bottom center',
-        textfont = {
-            'size': 40
-        },
-        showlegend=False,
-        hoverinfo='none',
-    ))
-
-
     fig.add_trace(go.Indicator(
         mode = 'gauge',
-        title = {
-            'text': 'Enemy'
-        },
+        title = {'text': 'Enemy'},
         gauge = {
             'shape': "bullet",
             'axis': {
@@ -139,30 +76,12 @@ def main():
             'thickness': 1,
         },
         value = 1250,
-        domain = {
-            'x': [0.45, 1], 
-            'y': [0.25, 0.4]
-        }
+        domain = {'x': [0.45, 1], 'y': [0.25, 0.4]}
     ))
-
-    fig.add_trace(go.Scatter(
-        x = [0.99], y = [0.32],
-        mode='text',
-        text = ['1250 / 4500'],
-        textposition='middle left',
-        textfont = {
-            'size': 18
-        },
-        showlegend=False,
-        hoverinfo='none',
-    ))
-
 
     fig.add_trace(go.Indicator(
         mode = 'gauge',
-        title = {
-            'text': 'Claire'
-        },
+        title = {'text': 'Claire'},
         gauge = {
             'shape': "bullet",
             'axis': {
@@ -177,28 +96,26 @@ def main():
             'thickness': 1,
         },
         value = 765,
-        domain = {
-            'x': [0.45, 1], 
-            'y': [0.5, 0.65]
-        }
+        domain = { 'x': [0.45, 1], 'y': [0.5, 0.65]}
     ))
 
-    fig.add_trace(go.Scatter(
-        x = [0.99], y = [0.57],
-        mode='text',
-        text = ['765 / 1500'],
-        textposition='middle left',
-        textfont = {
-            'size': 18
-        },
-        showlegend=False,
-        hoverinfo='none',
-    ))
+    fig.add_trace(text('IGT:', 0.38, 0.75, textposition='top right', size=20))
+    fig.add_trace(text('00:38:42', 0.6, 0.75, textposition='top left', size=20))
+    fig.add_trace(text('02:13', 1, 0.75, textposition='top left', size=20))
+    fig.add_trace(text('▼00:12', 0.8, 0.75, textposition='top left', size=20, color='green'))
+    fig.add_trace(text('DA', 0, 0.85, textposition='bottom right', size=20))
+    fig.add_trace(text('5250', 0.15, 0.52, textposition='bottom center', size=15))
+    fig.add_trace(text('5', 0.15, 0.4, textposition='bottom center', size=40))
+    fig.add_trace(text('1250 / 4500', 0.99, 0.32, textposition='middle left', size=18))
+    fig.add_trace(text('765 / 1500', 0.99, 0.57, textposition='middle left', size=18))
 
+    fig.write_image('./overlay.png', width=800, height=350, scale=1, engine='kaleido', validate=False)
+    # print(f'Build time: {time() - t_build}s')
+    # t_render = time()
+    # img_bytes = to_image(fig, format='png', width=800, height=350, scale=1, engine='kaleido', validate=False)
+    # print(f'Render time: {time() - t_render}s')
+    # return img_bytes, 800, 350
 
-    
-
-    fig.show()
 
 if __name__ == '__main__':
     main()

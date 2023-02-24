@@ -2,6 +2,7 @@ import asyncio
 import json
 import zmq
 
+
 class MemClient:
     def __init__(self, ip='localhost', port=5556, sub_topic=''):
         self.ip = ip
