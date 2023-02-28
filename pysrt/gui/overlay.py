@@ -60,14 +60,14 @@ class Overlay:
             self.draw_func = lambda *_, **__: None
 
 
-    def update(self):
+    def update(self, *args, **kwargs):
         """Update the overlay
         
         This method should be called in a loop to update the overlay each frame.
         """
         self.update_pos()
         self.fill(self.colorkey)
-        self.draw_func(self)
+        self.draw_func(self, *args, **kwargs)
         pygame.display.update()
         
 
