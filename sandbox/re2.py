@@ -12,11 +12,6 @@ framerate = 1/10
 title = 'resident evil 2'
 
 
-subprocess.Popen('', 
-    executable='./memcore/TestApp/bin/Debug/net6.0/TestApp.exe'
-)
-
-
 #  Socket to talk to server
 # context = zmq.Context()
 # socket = context.socket(zmq.SUB)
