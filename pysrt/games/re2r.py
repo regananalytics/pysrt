@@ -19,11 +19,28 @@ danger = (174, 12, 9)
 poison = (91, 15, 149)
 
 
+def time_conv(nanoseconds):
+    seconds = nanoseconds / 1e6
+    hours, seconds = divmod(seconds, 3600)
+    minutes, seconds = divmod(seconds, 60)
+    return "{:02d}:{:02d}:{:02d}".format(int(hours), int(minutes), int(seconds))
 
-def draw(data_provider):
 
-    #
-    data_provider.get_data
+
+def draw(data=None, igt=0, da=None, hp=None, hp_max=None, poisoned=None, ehp=None, ehp_max=None):
+
+    # Parse Data
+    if data:
+        igt = time_conv(float(data['IGT']['IGT_Running_Timer'] 
+            - data['IGT']['IGT_Cutscene_Timer'] 
+            - data['IGT']['IGT_Pause_Timer']
+        ))
+        da = int(data['DA']['DA_Score'])
+        hp = int(data['Player_HP']['Current_HP'])
+        hp_max = int(data['Player_HP']['Max_HP'])
+        poisoned = data['Player']['Poisoned']
+        ehp = 0
+        ehp_max = 100
 
     _height = height-pad*2
     _lg_font = _height/2.414
@@ -81,13 +98,13 @@ def draw(data_provider):
     hp_region = pygame.Surface((hp_width-2, _height-2))
 
     write_text(hp_region, 'IGT', hp_width/5-pad*1.5, pad*1.5, size=_md_font, justify='right')
-    write_text(hp_region, f'00:00:00', hp_width/5+pad/2.5, pad*2, size=_md_font-pad/2, justify='left')
-    write_text(hp_region, f'00:00', hp_width-pad*1.5, pad*2, size=_md_font-pad/2, justify='right', bold=False)
+    write_text(hp_region, f'{igt}', hp_width/5+pad/2.5, pad*1.5, size=_md_font, justify='left')
+    # write_text(hp_region, f'00:00', hp_width-pad*1.5, pad*2, size=_md_font-pad/2, justify='right', bold=False)
 
     # delta
     # write_text(hp_region, '▲', hp_width/2+pad*4.5, pad*2.25, size=_sm_font, justify='right', color=danger)
-    write_text(hp_region, '▼', hp_width/2+pad*4.5, pad*2.25, size=_sm_font, justify='right', color=fine)
-    write_text(hp_region, f'00:00', hp_width/2+pad*5, pad*2.25, size=_sm_font, justify=' ', color=fine)
+    # write_text(hp_region, '▼', hp_width/2+pad*4.5, pad*2.25, size=_sm_font, justify='right', color=fine)
+    # write_text(hp_region, f'00:00', hp_width/2+pad*5, pad*2.25, size=_sm_font, justify=' ', color=fine)
 
     hp_region.blit(
         bar_plot(
@@ -98,7 +115,7 @@ def draw(data_provider):
         (hp_width/5, bar_height+pad*3)
     )
     write_text(hp_region, 'CHP', hp_width/5-pad, bar_height+pad*3.5, size=_md_font, justify='right')
-    write_text(hp_region, f'{hp} / {hp_max}', hp_width-pad*2, bar_height+pad*3.75+1, size=_sm_font, justify='right')
+    write_text(hp_region, f'{hp} / {hp_max}', hp_width-pad*2, bar_height+pad*3.75-2, size=_sm_font, justify='right')
 
     ehp_val = ehp/ehp_max*100 if ehp and ehp_max else 0
     hp_region.blit(
@@ -110,7 +127,7 @@ def draw(data_provider):
         (hp_width/5, bar_height*2+pad*5)
         )
     write_text(hp_region, 'EHP', hp_width/5-pad, bar_height*2+pad*5.5, size=_md_font, justify='right')
-    write_text(hp_region, f'{ehp or 0} / {ehp_max or 100}', hp_width-pad*2, bar_height*2+pad*5.75+1, size=_sm_font, justify='right')
+    write_text(hp_region, f'{ehp or 0} / {ehp_max or 100}', hp_width-pad*2, bar_height*2+pad*5.75-2, size=_sm_font, justify='right')
 
     widget.blit(hp_region, (hp_left+1, 1))
 
@@ -124,13 +141,29 @@ def draw(data_provider):
 
 
 if __name__ == '__main__':
+    import keyboard
+
+    DATA = True
 
     pygame.init()
-    display = pygame.display.set_mode((da_width + hp_width + pad*3, height-pad*2), pygame.NOFRAME)
+    display = pygame.display.set_mode((da_width + hp_width + pad*3, height-pad*2))#, pygame.NOFRAME)
     display.fill(bg_color)
+
+    if DATA:
+        from pysrt.memcore.receiver import MemReceiver
+        data_provider = MemReceiver()
+        data_provider.start()
 
     while True:
         pygame.event.pump()
-        w = draw(5230, 765, 1200, False, 855, 3500)
+        data = data_provider.data if DATA else None
+        if keyboard.is_pressed('ctrl+q'):
+            break
+        w = draw(
+            data if DATA else None, 
+            0, 4000, 1200, 1200, False, 100, 100
+        )
         display.blit(w, (0, 0))
         pygame.display.flip()
+
+    print('Done!')

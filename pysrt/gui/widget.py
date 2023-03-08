@@ -79,8 +79,8 @@ def gauge_plot(val, width=100,
     pygame.draw.line(widget, line_color, (0, r), (r*ratio, r), thickness)
     pygame.draw.line(widget, line_color, (r*2, r), (r*(2-ratio), r), thickness)
     # Draw bar
+    bar = pygame.Surface((width+1, width), pygame.SRCALPHA)
     if val > 0:
-        bar = pygame.Surface((width+1, width), pygame.SRCALPHA)
         draw_aaarc(bar, r, r, r-thickness, bar_color, (0, 0, 0, 0), r*ratio-thickness)
         bg_poly = lambda points: draw_aapolygon(bar, points, (0, 0, 0, 0))
         t = pi*(1-val/100)

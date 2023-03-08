@@ -38,11 +38,12 @@ class Overlay:
         # To make this an overlay,
         #   Initialize the overlay with the same dimensions as the window it will be overlaying
         #   Turn off the overlay's frame so it isn't just a window.
-        self.surf = pygame.display.set_mode(self.win.xywh()[2:], pygame.NOFRAME)
+        self.surf = pygame.display.set_mode((1000,500), pygame.NOFRAME)
         # Set the transparency color
         self.colorkey = fuchsia if colorkey is None else colorkey
         # And make the window transparent
         self.set_transparency()
+        win32gui.SetWindowPos(self.h, win32con.HWND_TOPMOST, self.win.rect()[0], self.win.rect()[1], 0, 0, 0x0009)
 
 
     @property
@@ -67,7 +68,7 @@ class Overlay:
         """
         self.update_pos()
         self.fill(self.colorkey)
-        self.draw_func(self, *args, **kwargs)
+        self.surf.blit(self.draw_func(*args, **kwargs), (0, 300))
         pygame.display.update()
         
 
@@ -77,8 +78,7 @@ class Overlay:
             self.colorkey = colorkey
         # Using the colorkey, set the window to be transparent
         #   This is done using the win32api library by setting the window's extended style
-        win32gui.SetWindowLong(self.h, 
-            win32con.GWL_EXSTYLE,
+        win32gui.SetWindowLong(self.h, win32con.GWL_EXSTYLE,
             win32gui.GetWindowLong(self.h, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED
         )
         win32gui.SetLayeredWindowAttributes(self.h, win32api.RGB(*self.colorkey), 0, win32con.LWA_COLORKEY)
@@ -86,15 +86,18 @@ class Overlay:
 
     def update_pos(self):
         """Update the position of the overlay to match the main window's position"""
-        win32gui.SetWindowPos(self.h, -1, self.win.rect()[0], self.win.rect()[1], 0, 0, 0x0001)
+        # win32gui.SetWindowPos(self.h, -1, self.win.rect()[0], self.win.rect()[1], 0, 0, 0x0009)
 
 
     def quit(self):
         """Quit the overlay and pygame instances"""
         pygame.quit()
 
-
     ## Low-Level Drawing Functions
+
+    def blit(self, surf, pos=(10, 10)):
+        """Blit a surface to the overlay"""
+        self.surf.blit(surf, pos)
 
     def fill(self, color):
         """Fill the overlay with a color"""
@@ -129,4 +132,3 @@ class Overlay:
             Arcs are drawn relative to the window's top left corner.
         """
         pygame.draw.arc(self.surf, color, rect, start, end)
-

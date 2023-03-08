@@ -1,31 +1,26 @@
 # Main application of pysrt
-from pysrt.gui.window import Window
-from pysrt.gui.overlay import Overlay
+import keyboard
+import time
+
+from pysrt.srt import SRT
 from pysrt.memcore.receiver import MemReceiver
 
 from pysrt.games.re2r import draw
 
 
-
+QUIT_STR = 'ctrl+shift+o'
 
 
 def main():
     """Main function of pysrt"""
-    # Create data producer thread
-    receiver = MemReceiver(host='localhost', port=5556, subs='')
-    receiver.start()
-
-    # Create overlay application
-    win = Window.from_title('Resident Evil 2', partial=True)
-    overlay = Overlay(win)
-    overlay.set_transparency(colorkey=(0, 0, 0))
-
-    # Set the function to be called when the overlay is updated
-    overlay.set_draw_func(draw)
-
+    srt = SRT(MemReceiver(host='localhost', port=5556, subs=''), 'Resident Evil 2', draw)
+    srt.start()
+    print(f'Press "{QUIT_STR}" to quit...')
     while True:
-        start = time.time()
-
+        if keyboard.is_pressed(QUIT_STR):
+            break
+    srt.stop()
+    srt.join()
 
 
 if __name__ == '__main__':

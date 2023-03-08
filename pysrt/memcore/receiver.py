@@ -18,17 +18,21 @@ class MemReceiver(Thread):
         self.socket = None
         self._data = None
         self.stop_flag = False
+        self._init_mq()
 
     def _init_mq(self):
-        self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.PUB)
-        self.socket.bind(f'tcp://{self.host}:{self.port}')
-        self.socket.setsockopt_string(zmq.SUBSCRIBE, self.subs)
+        context = zmq.Context()
+        socket = context.socket(zmq.SUB)
+        socket.connect("tcp://localhost:5556")
+        socket.setsockopt_string(zmq.SUBSCRIBE, "")
+        self.socket = socket
 
     def run(self):
-        self._init_mq()
         while not self.stop_flag:
-            raw_msg = self.socket.recv_string()
+            try:
+                raw_msg = self.socket.recv_string(flags=zmq.NOBLOCK)
+            except:
+                continue
             msg = json.loads(raw_msg)
             with self.lock:
                 self._data = msg
@@ -48,4 +52,15 @@ class MemReceiver(Thread):
 
     def _stop(self):
         self.socket.close()
-        self.context.term()
+
+
+if __name__ == '__main__':
+    import time
+    receiver = MemReceiver()
+    receiver.start()
+    for i in range(5):
+        print(receiver.data)
+        time.sleep(1)
+    receiver.stop()
+    receiver.join()
+    print('Done!')
